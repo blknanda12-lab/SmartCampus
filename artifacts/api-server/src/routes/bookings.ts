@@ -30,8 +30,8 @@ router.get("/", authenticateToken, async (req: any, res) => {
     });
 
     let filtered = enriched;
-    if (userId) filtered = filtered.filter(b => b.userId === parseInt(userId as string));
-    if (resourceId) filtered = filtered.filter(b => b.resourceId === parseInt(resourceId as string));
+    if (userId) filtered = filtered.filter(b => b.userId === parseInt(String(userId)));
+    if (resourceId) filtered = filtered.filter(b => b.resourceId === parseInt(String(resourceId)));
 
     res.json(filtered);
   } catch (err) {

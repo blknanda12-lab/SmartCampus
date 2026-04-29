@@ -16,8 +16,10 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.39.1",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "nanoid": "^5.0.9",
     "pino": "^9.6.0",
     "pino-http": "^10.4.0"
   },
