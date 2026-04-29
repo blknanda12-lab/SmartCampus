@@ -69,14 +69,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = (redirectPath = '/') => {
+  const logout = () => {
     setUser(null);
     setToken(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    if (redirectPath) {
-      setLocation(redirectPath);
-    }
+    window.location.href = '/';
   };
 
   return (
