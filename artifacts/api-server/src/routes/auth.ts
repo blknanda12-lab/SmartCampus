@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { authenticateToken } from "../middlewares/auth.js";
+import { authenticateToken } from "../middlewares/auth";
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || "smart_campus_jwt_secret_2024";

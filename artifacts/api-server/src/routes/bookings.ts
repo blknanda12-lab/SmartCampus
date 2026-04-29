@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db, bookingsTable, resourcesTable, usersTable } from "@workspace/db";
 import { eq, and, or, gte, lte } from "drizzle-orm";
-import { authenticateToken } from "../middlewares/auth.js";
+import { authenticateToken } from "../middlewares/auth";
 import { nanoid } from "nanoid";
 
 const router = Router();
