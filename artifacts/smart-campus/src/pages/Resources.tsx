@@ -140,15 +140,18 @@ export default function Resources() {
                     <Button 
                       variant="default" 
                       className="flex-1 shadow-md shadow-primary/20 cursor-pointer"
-                      onClick={() => setLocation(`/resources/${resource.id}`)}
+                      onClick={() => window.location.href = `/resources/${resource.id}`}
                     >
                       Book Now
                     </Button>
-                    <Link href={`/resources/${resource.id}`}>
-                      <Button variant="outline" size="icon" className="shrink-0">
-                        <Calendar className="h-4 w-4" />
-                      </Button>
-                    </Link>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="shrink-0"
+                      onClick={() => window.location.href = `/resources/${resource.id}`}
+                    >
+                      <Calendar className="h-4 w-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
