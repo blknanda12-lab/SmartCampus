@@ -25,15 +25,18 @@ export default function ResourceDetail() {
   const { id } = useParams();
   const resourceId = parseInt(id || "0", 10);
   const [date, setDate] = useState<Date>(new Date());
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [selectedHour, setSelectedHour] = useState<number | undefined>();
   
-  const { data: resource, isLoading } = useGetResource(resourceId, { 
-    query: { enabled: !!resourceId && !isNaN(resourceId), queryKey: getGetResourceQueryKey(resourceId) } 
-  });
+  const handleSlotClick = (hour: number, available: boolean) => {
+    if (!available) return;
+    setSelectedHour(hour);
+    setIsBookingOpen(true);
+  };
 
-  const { data: availability } = useGetResourceAvailability(resourceId, { date: format(date, 'yyyy-MM-dd') }, {
-    query: { enabled: !!resourceId && !isNaN(resourceId), queryKey: getGetResourceAvailabilityQueryKey(resourceId, { date: format(date, 'yyyy-MM-dd') }) }
-  });
+  const handleCloseBooking = () => {
+    setIsBookingOpen(false);
+    setSelectedHour(undefined);
+  };
 
   if (isLoading) {
     return <div className="animate-pulse space-y-8">
@@ -108,14 +111,19 @@ export default function ResourceDetail() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <motion.div 
-                              whileHover={{ y: -2 }}
-                              className={`rounded-md cursor-pointer border ${isAvailable ? 'bg-emerald-500/20 border-emerald-500/30 hover:bg-emerald-500/30' : 'bg-red-500/20 border-red-500/30 hover:bg-red-500/30'} flex items-center justify-center`}
+                              whileHover={isAvailable ? { y: -2, scale: 1.05 } : {}}
+                              whileTap={isAvailable ? { scale: 0.95 } : {}}
+                              onClick={() => handleSlotClick(hour, isAvailable)}
+                              className={`rounded-md cursor-pointer border transition-all ${isAvailable ? 'bg-emerald-500/20 border-emerald-500/30 hover:bg-emerald-500/40 shadow-sm' : 'bg-red-500/20 border-red-500/30 cursor-not-allowed opacity-60'} flex items-center justify-center`}
                             >
+                              {!isAvailable && <div className="w-1/2 h-[1px] bg-red-400 rotate-45 opacity-40" />}
                             </motion.div>
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>{hour}:00 - {hour+1}:00</p>
-                            <p className="text-xs opacity-80">{isAvailable ? 'Available' : 'Booked'}</p>
+                            <p className="text-xs font-bold mt-1" style={{ color: isAvailable ? '#10b981' : '#ef4444' }}>
+                              {isAvailable ? 'Available - Click to Book' : `Booked: ${slot?.bookingTitle || 'Reserved'}`}
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -172,10 +180,11 @@ export default function ResourceDetail() {
       </div>
       <BookingModal 
         isOpen={isBookingOpen} 
-        onClose={() => setIsBookingOpen(false)} 
+        onClose={handleCloseBooking} 
         resourceId={resourceId}
         resourceName={resource.name}
         defaultDate={date}
+        defaultHour={selectedHour}
       />
     </div>
   );

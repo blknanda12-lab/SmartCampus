@@ -30,7 +30,7 @@ const getMarkerIcon = (status: string) => {
 export default function Map() {
   const [activeFilter, setActiveFilter] = useState("all");
   const { data: resources } = useListResources(activeFilter !== "all" ? { type: activeFilter } : {});
-  const position: [number, number] = [19.1335, 72.9135];
+  const position: [number, number] = [13.9858, 75.5689];
 
   return (
     <div className="space-y-6 h-full flex flex-col">
@@ -63,7 +63,7 @@ export default function Map() {
           {resources?.map(resource => (
             <Marker 
               key={resource.id} 
-              position={[resource.lat || 19.1335, resource.lng || 72.9135]}
+              position={[resource.lat || 13.9858, resource.lng || 75.5689]}
               icon={getMarkerIcon(resource.status)}
             >
               <Popup className="rounded-xl overflow-hidden shadow-xl border-0">

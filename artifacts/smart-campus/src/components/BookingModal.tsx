@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCreateBooking } from "@workspace/api-client-react";
 import { format } from "date-fns";
@@ -36,6 +36,17 @@ export function BookingModal({ isOpen, onClose, resourceId, resourceName, defaul
   
   const [conflictError, setConflictError] = useState<any>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Sync state with props when they change
+  useEffect(() => {
+    if (defaultHour) {
+      setStartTime(`${defaultHour.toString().padStart(2, '0')}:00`);
+      setEndTime(`${(defaultHour + 1).toString().padStart(2, '0')}:00`);
+    }
+    if (defaultDate) {
+      setDate(format(defaultDate, "yyyy-MM-dd"));
+    }
+  }, [defaultHour, defaultDate, isOpen]);
 
   const handleSubmit = (override = false) => {
     if (!resourceId || !user?.id) return;

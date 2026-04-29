@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db, bookingsTable, resourcesTable, usersTable } from "@workspace/db";
-import { eq, and, or, gte, lte } from "drizzle-orm";
+import { eq, and, or, lt, gt } from "drizzle-orm";
 import { authenticateToken } from "../middlewares/auth";
 import { nanoid } from "nanoid";
 
@@ -48,16 +48,22 @@ router.post("/", authenticateToken, async (req: any, res) => {
     const end = new Date(endTime);
     const dateStr = start.toISOString().split('T')[0];
 
-    // Conflict Detection
+    // Check permissions for Classrooms/Labs
+    const [resource] = await db.select().from(resourcesTable).where(eq(resourcesTable.id, resourceId)).limit(1);
+    if (!resource) return res.status(404).json({ error: "Resource not found" });
+
+    if ((resource.type === "classroom" || resource.type === "lab") && req.user.role !== "faculty") {
+      return res.status(403).json({ error: "Only faculty are authorized to book classrooms and labs." });
+    }
+
+    // Conflict Detection: (StartA < EndB) AND (EndA > StartB)
     const conflicts = await db.select().from(bookingsTable).where(
       and(
         eq(bookingsTable.resourceId, resourceId),
         eq(bookingsTable.date, dateStr),
         eq(bookingsTable.status, "confirmed"),
-        or(
-          and(gte(bookingsTable.startTime, start), lte(bookingsTable.startTime, end)),
-          and(gte(bookingsTable.endTime, start), lte(bookingsTable.endTime, end))
-        )
+        lt(bookingsTable.startTime, end),
+        gt(bookingsTable.endTime, start)
       )
     );
 
@@ -84,7 +90,7 @@ router.post("/", authenticateToken, async (req: any, res) => {
       endTime: end,
       date: dateStr,
       attendees: attendees || 1,
-      status: "confirmed",
+      status: req.user.role === "admin" ? "confirmed" : "pending",
       qrCode: `qr_${nanoid(10)}`,
       notes: notes || ""
     }).returning();
@@ -93,6 +99,31 @@ router.post("/", authenticateToken, async (req: any, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to create booking" });
+  }
+});
+
+router.patch("/:id/status", authenticateToken, async (req: any, res) => {
+  const id = parseInt(String(req.params.id));
+  const { status } = req.body;
+
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Only admins can approve/reject bookings" });
+  }
+
+  if (!["confirmed", "cancelled"].includes(status)) {
+    return res.status(400).json({ error: "Invalid status update" });
+  }
+
+  try {
+    const [updated] = await db.update(bookingsTable)
+      .set({ status })
+      .where(eq(bookingsTable.id, id))
+      .returning();
+    
+    if (!updated) return res.status(404).json({ error: "Booking not found" });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: "Status update failed" });
   }
 });
 
@@ -111,9 +142,18 @@ router.post("/:id/checkin", authenticateToken, async (req, res) => {
   }
 });
 
-router.delete("/:id", authenticateToken, async (req, res) => {
+router.delete("/:id", authenticateToken, async (req: any, res) => {
   const id = parseInt(String(req.params.id));
   try {
+    const [booking] = await db.select().from(bookingsTable).where(eq(bookingsTable.id, id)).limit(1);
+    
+    if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+    // Check authority: Owner OR Admin
+    if (booking.userId !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ error: "Unauthorized to cancel this booking" });
+    }
+
     const [cancelled] = await db.update(bookingsTable)
       .set({ status: "cancelled" })
       .where(eq(bookingsTable.id, id))

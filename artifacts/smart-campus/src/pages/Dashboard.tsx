@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 import { 
   useGetAnalyticsSummary, 
   useGetUtilizationByType, 
@@ -10,8 +11,11 @@ import {
   getListSensorsQueryKey,
   useListResources,
   useSuggestSlots,
-  useGetPeakHours
+  useCancelBooking,
+  useGetPeakHours,
+  customFetch
 } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
@@ -21,7 +25,7 @@ import {
 } from "recharts";
 import { 
   Box, Zap, CalendarCheck, TrendingUp, Sparkles, 
-  Activity, Clock, MapPin, Search 
+  Activity, Clock, MapPin, Search, Check, X 
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,8 +62,37 @@ function AdminDashboard() {
   const { data: trends } = useGetBookingTrends();
   const { data: roles } = useGetRoleBreakdown();
   const { data: recentBookings } = useListBookings({ status: 'confirmed' });
+  const { data: pendingBookings } = useListBookings({ status: 'pending' });
   const { data: insights } = useGetInsights();
   const { data: sensors } = useListSensors({ query: { refetchInterval: 5000, queryKey: getListSensorsQueryKey() } });
+  const cancelMutation = useCancelBooking();
+  const queryClient = useQueryClient();
+
+  const handleStatusUpdate = async (id: number, status: 'confirmed' | 'cancelled') => {
+    try {
+      await customFetch(`/api/bookings/${id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status })
+      });
+      toast.success(`Booking ${status === 'confirmed' ? 'approved' : 'rejected'}`);
+      queryClient.invalidateQueries();
+    } catch (err) {
+      toast.error("Failed to update status");
+    }
+  };
+
+  const handleCancel = (id: number) => {
+    if (!confirm("Are you sure you want to cancel this booking as an Admin?")) return;
+    cancelMutation.mutate({ id }, {
+      onSuccess: () => {
+        toast.success("Booking cancelled successfully");
+        queryClient.invalidateQueries();
+      },
+      onError: () => {
+        toast.error("Failed to cancel booking");
+      }
+    });
+  };
 
   const stats = [
     { title: "Total Resources", value: summary?.totalResources || 0, icon: Box, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -118,29 +151,51 @@ function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm">
+        <Card className="border-border/50 shadow-sm border-amber-500/20 bg-amber-500/[0.02]">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              AI Insights
+            <CardTitle className="text-lg flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-amber-500" />
+                Pending Approvals
+              </div>
+              <Badge variant="secondary" className="bg-amber-500/10 text-amber-600">{pendingBookings?.length || 0}</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {insights?.slice(0, 3).map((insight) => (
-              <div key={insight.id} className="p-4 rounded-xl bg-muted/50 border border-border/50">
-                <div className="font-medium text-sm text-foreground flex items-center gap-2 mb-1">
-                  {insight.type === 'optimization' && <TrendingUp className="h-4 w-4 text-primary" />}
-                  {insight.type === 'warning' && <Activity className="h-4 w-4 text-amber-500" />}
-                  {insight.title}
+            {pendingBookings?.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">No requests to review.</div>
+            ) : (
+              pendingBookings?.slice(0, 4).map((booking) => (
+                <div key={booking.id} className="p-4 rounded-xl bg-card border border-border/50 shadow-sm">
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <h4 className="font-bold text-sm">{booking.title}</h4>
+                      <p className="text-xs text-muted-foreground mt-0.5">{booking.resourceName} • {booking.userName}</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-muted-foreground">{format(new Date(booking.startTime), 'MMM d, HH:mm')}</span>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="h-8 w-8 p-0 rounded-full border-red-500/20 text-red-500 hover:bg-red-500/10"
+                          onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          className="h-8 w-8 p-0 rounded-full bg-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/20"
+                          onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">{insight.message}</p>
-                {insight.actionLabel && (
-                  <Button variant="link" size="sm" className="mt-2 h-auto p-0 text-primary">
-                    {insight.actionLabel} &rarr;
-                  </Button>
-                )}
-              </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
@@ -194,7 +249,7 @@ function AdminDashboard() {
           <CardContent>
             <div className="space-y-4">
               {recentBookings?.slice(0, 5).map(booking => (
-                <div key={booking.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/50 transition-colors">
+                <div key={booking.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/50 transition-colors group">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                       <CalendarCheck className="h-4 w-4" />
@@ -206,11 +261,21 @@ function AdminDashboard() {
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{format(new Date(booking.startTime), 'HH:mm')}</p>
-                    <Badge variant="secondary" className="mt-1 text-[10px] uppercase bg-secondary">
-                      {booking.userName}
-                    </Badge>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-sm font-medium">{format(new Date(booking.startTime), 'HH:mm')}</p>
+                      <Badge variant="secondary" className="mt-1 text-[10px] uppercase bg-secondary">
+                        {booking.userName}
+                      </Badge>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => handleCancel(booking.id)}
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -294,7 +359,7 @@ function StudentDashboard() {
   const { data: availableRooms } = useListResources({ status: 'available', type: 'study_room' });
   const { data: suggestions } = useSuggestSlots({ type: 'study_room', capacity: 2 });
   const { user } = useAuth();
-  const { data: myBookings } = useListBookings({ userId: user?.id, status: 'confirmed' });
+  const { data: myBookings } = useListBookings({ status: 'confirmed' });
 
   return (
     <div className="space-y-6">

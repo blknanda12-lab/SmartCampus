@@ -29,19 +29,21 @@ async function seed() {
     // 2. Create Resources
     console.log("🏢 Syncing campus resources...");
     const resourceData = [
-      { name: "AI Innovation Lab", type: "lab", building: "Main Block", floor: 3, capacity: 30, status: "available", pricePerHour: 0, lat: 12.9716, lng: 77.5946 },
-      { name: "Quiet Study Room A", type: "room", building: "Library", floor: 1, capacity: 4, status: "available", pricePerHour: 0, lat: 12.9717, lng: 77.5947 },
-      { name: "Central Conference Hall", type: "hall", building: "Admin Block", floor: 0, capacity: 150, status: "available", pricePerHour: 0, lat: 12.9718, lng: 77.5948 },
-      { name: "Physics Research Wing", type: "lab", building: "Science Tower", floor: 4, capacity: 20, status: "available", pricePerHour: 0, lat: 12.9719, lng: 77.5949 },
-      { name: "Smart Classroom 101", type: "room", building: "West Wing", floor: 1, capacity: 40, status: "available", pricePerHour: 0, lat: 12.9720, lng: 77.5950 },
-      { name: "Cafeteria Meeting Hub", type: "room", building: "Student Center", floor: 2, capacity: 10, status: "available", pricePerHour: 0, lat: 12.9721, lng: 77.5951 }
+      { name: "AI Innovation Lab", type: "lab", building: "Main Block", floor: 3, capacity: 30, status: "available", pricePerHour: 0, lat: 13.9858, lng: 75.5689 },
+      { name: "Quiet Study Room A", type: "room", building: "Library", floor: 1, capacity: 4, status: "available", pricePerHour: 0, lat: 13.9860, lng: 75.5692 },
+      { name: "Central Conference Hall", type: "hall", building: "Admin Block", floor: 0, capacity: 150, status: "available", pricePerHour: 0, lat: 13.9855, lng: 75.5685 },
+      { name: "PG Block Seminar Room", type: "hall", building: "PG Block", floor: 1, capacity: 80, status: "available", pricePerHour: 0, lat: 13.9852, lng: 75.5680 },
+      { name: "Smart Classroom 101", type: "room", building: "Main Block", floor: 1, capacity: 40, status: "available", pricePerHour: 0, lat: 13.9860, lng: 75.5690 },
+      { name: "Cafeteria Meeting Hub", type: "room", building: "Student Center", floor: 2, capacity: 10, status: "available", pricePerHour: 0, lat: 13.9848, lng: 75.5678 }
     ];
 
     for (const r of resourceData) {
-      const existing = await db.select().from(resourcesTable).where(eq(resourcesTable.name, r.name)).limit(1);
-      if (existing.length === 0) {
-        await db.insert(resourcesTable).values(r);
-      }
+      await db.insert(resourcesTable)
+        .values(r)
+        .onConflictDoUpdate({
+          target: resourcesTable.name,
+          set: { lat: r.lat, lng: r.lng, building: r.building }
+        });
     }
     console.log("✅ Resources synced successfully.");
 

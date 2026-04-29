@@ -22,7 +22,7 @@ export function Sidebar({ collapsed, setCollapsed }: { collapsed: boolean; setCo
     const role = user?.role || "student";
     const links = [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "faculty", "student"] },
-      { href: "/resources", label: "Resources", icon: BookOpen, roles: ["admin", "faculty", "student"] },
+      { href: "/resources", label: "Resources", icon: BookOpen, roles: ["admin", "faculty"] },
       { href: "/bookings", label: "Bookings", icon: Calendar, roles: ["admin", "faculty", "student"] },
       { href: "/map", label: "Campus Map", icon: MapIcon, roles: ["admin", "faculty", "student"] },
       { href: "/analytics", label: "Analytics", icon: BarChart3, roles: ["admin"] },
