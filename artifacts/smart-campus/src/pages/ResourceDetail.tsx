@@ -29,12 +29,13 @@ export default function ResourceDetail() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   const { data: resource, isLoading } = useGetResource(
-    { id: resourceId },
+    resourceId,
     { query: { enabled: !isNaN(resourceId) && resourceId > 0 } }
   );
 
   const { data: availability } = useGetResourceAvailability(
-    { id: resourceId, date: format(date, 'yyyy-MM-dd') },
+    resourceId,
+    { date: format(date, 'yyyy-MM-dd') },
     { query: { enabled: !isNaN(resourceId) && resourceId > 0 } }
   );
   
