@@ -137,7 +137,9 @@ export default function Resources() {
 
                   <div className="flex gap-3 mt-auto">
                     <Link href={`/resources/${resource.id}`} className="flex-1">
-                      <Button variant="default" className="w-full shadow-md shadow-primary/20">Book Now</Button>
+                      <Button variant="default" className="w-full shadow-md shadow-primary/20 cursor-pointer">
+                        Book Now
+                      </Button>
                     </Link>
                     <Button variant="outline" size="icon" className="shrink-0">
                       <Calendar className="h-4 w-4" />
