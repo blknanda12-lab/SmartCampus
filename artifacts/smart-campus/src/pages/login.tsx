@@ -30,8 +30,8 @@ interface DemoRole {
 
 const ROLES: DemoRole[] = [
   {
-    email: "admin@campus.edu",
-    password: "Admin@123",
+    email: "admin@smartcampus.edu",
+    password: "admin123",
     role: "Admin",
     title: "Operations Lead",
     subtitle: "Campus-wide analytics, IoT control, every booking",
@@ -40,8 +40,8 @@ const ROLES: DemoRole[] = [
     ring: "ring-emerald-400/40 hover:ring-emerald-400/80",
   },
   {
-    email: "prof.smith@campus.edu",
-    password: "Faculty@123",
+    email: "faculty@smartcampus.edu",
+    password: "faculty123",
     role: "Faculty",
     title: "Faculty",
     subtitle: "Reserve lecture halls, labs, and teaching spaces",
@@ -50,8 +50,8 @@ const ROLES: DemoRole[] = [
     ring: "ring-indigo-400/40 hover:ring-indigo-400/80",
   },
   {
-    email: "student1@campus.edu",
-    password: "Student@123",
+    email: "student@smartcampus.edu",
+    password: "student123",
     role: "Student",
     title: "Student",
     subtitle: "Find study rooms, equipment, available seats",
