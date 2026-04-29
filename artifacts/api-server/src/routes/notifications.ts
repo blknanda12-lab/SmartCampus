@@ -16,7 +16,7 @@ router.get("/", authenticateToken, async (req: any, res) => {
 });
 
 router.post("/:id/read", authenticateToken, async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   try {
     const [updated] = await db.update(notificationsTable).set({ read: true }).where(eq(notificationsTable.id, id)).returning();
     res.json(updated);
