@@ -464,7 +464,7 @@ export default function Login() {
           </div>
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            Built for the Smart Campus hackathon · Mumbai
+            Built for PESIT Shivamogga · Smart Campus
           </p>
         </motion.div>
       </div>

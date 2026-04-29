@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useListResources } from "@workspace/api-client-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 export default function Resources() {
   const [type, setType] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
+  const [, setLocation] = useLocation();
   
   const { data: resources, isLoading } = useListResources({ 
     ...(type !== "all" && { type }),
@@ -136,14 +137,18 @@ export default function Resources() {
                   </div>
 
                   <div className="flex gap-3 mt-auto">
-                    <Link href={`/resources/${resource.id}`} className="flex-1">
-                      <Button variant="default" className="w-full shadow-md shadow-primary/20 cursor-pointer">
-                        Book Now
+                    <Button 
+                      variant="default" 
+                      className="flex-1 shadow-md shadow-primary/20 cursor-pointer"
+                      onClick={() => setLocation(`/resources/${resource.id}`)}
+                    >
+                      Book Now
+                    </Button>
+                    <Link href={`/resources/${resource.id}`}>
+                      <Button variant="outline" size="icon" className="shrink-0">
+                        <Calendar className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Button variant="outline" size="icon" className="shrink-0">
-                      <Calendar className="h-4 w-4" />
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
