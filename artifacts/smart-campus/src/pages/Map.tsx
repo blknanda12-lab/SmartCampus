@@ -55,7 +55,7 @@ export default function Map() {
       </div>
 
       <Card className="flex-1 min-h-[600px] border-border/50 shadow-sm overflow-hidden relative">
-        <MapContainer center={position} zoom={17} className="w-full h-full z-0">
+        <MapContainer center={position} zoom={17} className="w-full h-full z-0" style={{ height: "600px" }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"

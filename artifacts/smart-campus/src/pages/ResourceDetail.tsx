@@ -26,6 +26,7 @@ export default function ResourceDetail() {
   const resourceId = parseInt(id || "0", 10);
   const [date, setDate] = useState<Date>(new Date());
   const [selectedHour, setSelectedHour] = useState<number | undefined>();
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
   
   const handleSlotClick = (hour: number, available: boolean) => {
     if (!available) return;

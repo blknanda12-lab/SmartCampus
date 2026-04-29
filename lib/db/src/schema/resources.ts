@@ -11,7 +11,7 @@ import { z } from "zod/v4";
 
 export const resourcesTable = pgTable("resources", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+  name: text("name").notNull().unique(),
   type: text("type").notNull(),
   building: text("building").notNull(),
   floor: integer("floor").notNull().default(1),
