@@ -97,7 +97,7 @@ router.post("/", authenticateToken, async (req: any, res) => {
 });
 
 router.post("/:id/checkin", authenticateToken, async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   try {
     const [updated] = await db.update(bookingsTable)
       .set({ checkInTime: new Date(), status: "completed" })
@@ -112,7 +112,7 @@ router.post("/:id/checkin", authenticateToken, async (req, res) => {
 });
 
 router.delete("/:id", authenticateToken, async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   try {
     const [cancelled] = await db.update(bookingsTable)
       .set({ status: "cancelled" })
