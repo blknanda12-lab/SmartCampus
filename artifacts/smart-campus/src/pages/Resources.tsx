@@ -136,22 +136,19 @@ export default function Resources() {
                     ))}
                   </div>
 
-                  <div className="flex gap-3 mt-auto">
-                    <Button 
-                      variant="default" 
-                      className="flex-1 shadow-md shadow-primary/20 cursor-pointer"
-                      onClick={() => window.location.href = `/resources/${resource.id}`}
+                  <div className="flex gap-3 mt-auto relative z-50">
+                    <a 
+                      href={`/resources/${resource.id}`}
+                      className="flex-1 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 transition-colors cursor-pointer"
                     >
                       Book Now
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      className="shrink-0"
-                      onClick={() => window.location.href = `/resources/${resource.id}`}
+                    </a>
+                    <a 
+                      href={`/resources/${resource.id}`}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background hover:bg-muted transition-colors cursor-pointer"
                     >
                       <Calendar className="h-4 w-4" />
-                    </Button>
+                    </a>
                   </div>
                 </CardContent>
               </Card>
