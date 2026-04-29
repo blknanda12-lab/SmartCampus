@@ -27,6 +27,16 @@ export default function ResourceDetail() {
   const [date, setDate] = useState<Date>(new Date());
   const [selectedHour, setSelectedHour] = useState<number | undefined>();
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+
+  const { data: resource, isLoading } = useGetResource(
+    { id: resourceId },
+    { query: { enabled: !isNaN(resourceId) && resourceId > 0 } }
+  );
+
+  const { data: availability } = useGetResourceAvailability(
+    { id: resourceId, date: format(date, 'yyyy-MM-dd') },
+    { query: { enabled: !isNaN(resourceId) && resourceId > 0 } }
+  );
   
   const handleSlotClick = (hour: number, available: boolean) => {
     if (!available) return;
