@@ -92,13 +92,8 @@ export default function Resources() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {resources?.map((resource, i) => (
-            <motion.div 
-              key={resource.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
-              <Card className="h-full border-border/50 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group overflow-hidden">
+            <div key={resource.id} className="h-full">
+              <Card className="h-full border-border/50 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group overflow-hidden pointer-events-auto">
                 <div className="h-2 w-full bg-gradient-to-r from-primary/40 to-primary/10" />
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-4">
@@ -136,23 +131,25 @@ export default function Resources() {
                     ))}
                   </div>
 
-                  <div className="flex gap-3 mt-auto relative z-50">
+                  <div className="flex gap-3 mt-auto relative" style={{ zIndex: 99999, pointerEvents: 'auto' }}>
                     <a 
                       href={`/resources/${resource.id}`}
-                      className="flex-1 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 transition-colors cursor-pointer"
+                      className="flex-1 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+                      style={{ display: 'flex', position: 'relative', zIndex: 99999, pointerEvents: 'auto' }}
                     >
                       Book Now
                     </a>
                     <a 
                       href={`/resources/${resource.id}`}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background hover:bg-muted transition-colors cursor-pointer"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-background hover:bg-muted hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+                      style={{ display: 'flex', position: 'relative', zIndex: 99999, pointerEvents: 'auto' }}
                     >
                       <Calendar className="h-4 w-4" />
                     </a>
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
       )}
