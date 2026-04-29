@@ -51,6 +51,27 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Create a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RegisterRequest" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthResponse" }
+        "400":
+          description: Invalid data
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
 
   /auth/me:
     get:
@@ -551,6 +572,16 @@ components:
         email: { type: string }
         password: { type: string }
       required: [email, password]
+
+    RegisterRequest:
+      type: object
+      properties:
+        email: { type: string }
+        password: { type: string }
+        name: { type: string }
+        role: { type: string, enum: [admin, faculty, student] }
+        department: { type: string }
+      required: [email, password, name, role, department]
 
     AuthResponse:
       type: object

@@ -34,6 +34,32 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/register", async (req, res) => {
+  const { email, password, name, role, department } = req.body;
+
+  try {
+    const [existing] = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
+    if (existing) {
+      return res.status(400).json({ error: "Email already registered" });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const [user] = await db.insert(usersTable).values({
+      email,
+      name,
+      passwordHash,
+      role: role || "student",
+      department: department || "General"
+    }).returning();
+
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });
+    const { passwordHash: _, ...userWithoutPassword } = user;
+    res.json({ token, user: userWithoutPassword });
+  } catch (err) {
+    res.status(500).json({ error: "Server error during registration" });
+  }
+});
+
 router.get("/me", authenticateToken, (req: any, res) => {
   const { passwordHash, ...userWithoutPassword } = req.user;
   res.json(userWithoutPassword);

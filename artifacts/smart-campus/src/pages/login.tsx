@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { useLogin } from "@workspace/api-client-react";
-import { motion } from "framer-motion";
+import { useLogin, customFetch, AuthResponse } from "@workspace/api-client-react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2,
   Shield,
@@ -13,9 +13,25 @@ import {
   Wifi,
   Calendar,
   MapPin,
+  Mail,
+  Lock,
+  UserPlus,
+  LogIn,
+  Library,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useMutation } from "@tanstack/react-query";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DemoRole {
   email: string;
@@ -72,6 +88,25 @@ export default function Login() {
   const { login } = useAuth();
   const loginMutation = useLogin();
   const [pending, setPending] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("login");
+
+  // Form states
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regRole, setRegRole] = useState("student");
+  const [regDept, setRegDept] = useState("");
+
+  const registerMutation = useMutation({
+    mutationFn: (data: any) =>
+      customFetch<AuthResponse>("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+  });
 
   const handleDemoLogin = (r: DemoRole) => {
     setPending(r.role);
@@ -86,7 +121,55 @@ export default function Login() {
         },
         onError: () => {
           toast.error("Login failed", {
-            description: "Demo credentials are misconfigured. Try again in a moment.",
+            description: "Demo credentials are misconfigured.",
+          });
+          setPending(null);
+        },
+      },
+    );
+  };
+
+  const handleManualLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPending("manual");
+    loginMutation.mutate(
+      { data: { email: loginEmail, password: loginPassword } },
+      {
+        onSuccess: (data) => {
+          toast.success(`Welcome back, ${data.user.name}`);
+          login(data);
+        },
+        onError: (err: any) => {
+          toast.error("Login failed", {
+            description: err.data?.error || "Check your email and password.",
+          });
+          setPending(null);
+        },
+      },
+    );
+  };
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPending("register");
+    registerMutation.mutate(
+      {
+        email: regEmail,
+        password: regPassword,
+        name: regName,
+        role: regRole,
+        department: regDept || "General",
+      },
+      {
+        onSuccess: (data) => {
+          toast.success("Account created!", {
+            description: "Welcome to the Smart Campus community.",
+          });
+          login(data);
+        },
+        onError: (err: any) => {
+          toast.error("Registration failed", {
+            description: err.data?.error || "Something went wrong.",
           });
           setPending(null);
         },
@@ -210,67 +293,174 @@ export default function Login() {
           </div>
 
           <div className="rounded-3xl glass shadow-2xl p-8">
-            <div className="mb-7">
-              <div className="inline-flex items-center gap-2 text-xs text-primary mb-3">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary pulse-dot" />
-                <span className="uppercase tracking-[0.18em]">Demo Access</span>
+            <Tabs defaultValue="login" className="w-full" onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-2 mb-8 rounded-2xl p-1 bg-muted/40">
+                <TabsTrigger value="login" className="rounded-xl flex items-center gap-2 transition-all">
+                  <LogIn className="h-4 w-4" />
+                  <span>Login</span>
+                </TabsTrigger>
+                <TabsTrigger value="register" className="rounded-xl flex items-center gap-2 transition-all">
+                  <UserPlus className="h-4 w-4" />
+                  <span>Sign Up</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="login">
+                <div className="mb-6">
+                  <h2 className="font-display text-2xl font-bold tracking-tight">Welcome Back</h2>
+                  <p className="text-muted-foreground mt-1 text-sm">Enter your credentials to access the campus.</p>
+                </div>
+
+                <form onSubmit={handleManualLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email address</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="name@university.edu"
+                        className="pl-10 rounded-xl"
+                        required
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Password</Label>
+                      <button type="button" className="text-xs text-primary hover:underline">Forgot?</button>
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        className="pl-10 rounded-xl"
+                        required
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full rounded-xl h-11 font-bold shadow-lg shadow-primary/20"
+                    disabled={loginMutation.isPending}
+                  >
+                    {pending === "manual" ? "Signing in..." : "Sign In"}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="register">
+                <div className="mb-6">
+                  <h2 className="font-display text-2xl font-bold tracking-tight">Create Account</h2>
+                  <p className="text-muted-foreground mt-1 text-sm">Join the resource optimization platform.</p>
+                </div>
+
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      placeholder="Academic Full Name"
+                      className="rounded-xl"
+                      required
+                      value={regName}
+                      onChange={(e) => setRegName(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="reg-role">Your Role</Label>
+                      <Select value={regRole} onValueChange={setRegRole}>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="Role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="student">Student</SelectItem>
+                          <SelectItem value="faculty">Faculty</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="dept">Department</Label>
+                      <Input
+                        id="dept"
+                        placeholder="e.g. CS"
+                        className="rounded-xl"
+                        required
+                        value={regDept}
+                        onChange={(e) => setRegDept(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-email">University Email</Label>
+                    <Input
+                      id="reg-email"
+                      type="email"
+                      placeholder="name@university.edu"
+                      className="rounded-xl"
+                      required
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-password">Password</Label>
+                    <Input
+                      id="reg-password"
+                      type="password"
+                      placeholder="Choose a strong password"
+                      className="rounded-xl"
+                      required
+                      value={regPassword}
+                      onChange={(e) => setRegPassword(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full rounded-xl h-11 font-bold shadow-lg shadow-primary/20"
+                    disabled={registerMutation.isPending}
+                  >
+                    {pending === "register" ? "Creating..." : "Create Account"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+
+            <div className="relative my-8">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border/50" />
               </div>
-              <h2 className="font-display text-3xl font-bold tracking-tight">
-                Step inside the platform
-              </h2>
-              <p className="text-muted-foreground mt-2 text-sm">
-                Pick a role to instantly explore Smart Campus with seeded data.
-              </p>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or demo shortcut</span>
+              </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-2">
               {ROLES.map((r, i) => {
                 const Icon = r.icon;
                 const isPending = pending === r.role && loginMutation.isPending;
                 return (
-                  <motion.button
+                  <button
                     key={r.role}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 + i * 0.07 }}
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.98 }}
                     disabled={loginMutation.isPending}
                     onClick={() => handleDemoLogin(r)}
-                    className={`group w-full text-left rounded-2xl p-4 bg-card/40 hover:bg-card/70 ring-1 ${r.ring} transition-all flex items-center gap-4 disabled:opacity-60`}
+                    className={`flex flex-col items-center justify-center p-3 rounded-2xl bg-card/40 hover:bg-card/70 ring-1 ${r.ring} transition-all disabled:opacity-50`}
                   >
-                    <div className="h-12 w-12 rounded-xl bg-background/60 ring-1 ring-border flex items-center justify-center shrink-0">
-                      <Icon className={`h-5 w-5 ${r.color}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold">{r.title}</span>
-                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-foreground/10 text-muted-foreground">
-                          {r.role}
-                        </span>
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-0.5 truncate">
-                        {r.subtitle}
-                      </div>
-                      <div className="text-[10px] font-mono text-muted-foreground/70 mt-1 truncate">
-                        {r.email}
-                      </div>
-                    </div>
-                    <ArrowRight
-                      className={`h-4 w-4 text-muted-foreground transition-transform ${isPending ? "animate-pulse" : "group-hover:translate-x-1"}`}
-                    />
-                  </motion.button>
+                    <Icon className={`h-5 w-5 mb-2 ${r.color}`} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{r.role}</span>
+                    {isPending && <Activity className="h-3 w-3 mt-1 animate-pulse" />}
+                  </button>
                 );
               })}
             </div>
-
-            <Button
-              variant="ghost"
-              className="w-full mt-6 text-muted-foreground hover:text-foreground text-xs"
-              disabled
-            >
-              <span>Use email & password (coming soon)</span>
-            </Button>
           </div>
 
           <p className="text-center text-xs text-muted-foreground mt-6">
