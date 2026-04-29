@@ -1,0 +1,43 @@
+// Re-export the zod schemas from api.ts (these are runtime values + their inferred types).
+export * from "./generated/api";
+
+// Re-export TypeScript types from generated/types as type-only.
+// Names that collide with zod schema constants in api.ts are intentionally excluded.
+export type {
+  AIInsight,
+  AnalyticsSummary,
+  AuthResponse,
+  AvailabilitySlot,
+  Booking,
+  CalendarEvent,
+  ChatRequest,
+  ChatResponseActionsItem,
+  ConflictResponse,
+  CountResponse,
+  CreateBookingRequest,
+  DemandPrediction,
+  DemandPredictionHourlyItem,
+  EnergyPoint,
+  Error as ApiError,
+  GetCalendarParams,
+  HealthStatus,
+  HeatmapCell,
+  ListBookingsParams,
+  ListNotificationsParams,
+  ListResourcesParams,
+  LoginRequest,
+  MarkAllReadParams,
+  Notification,
+  PredictDemandParams,
+  Resource,
+  RoleBreakdown,
+  SensorReading,
+  SlotSuggestion,
+  SuggestSlotsParams,
+  TopResource,
+  TrendPoint,
+  UnderusedResource,
+  User,
+  UserRole,
+  UtilizationByType,
+} from "./generated/types";

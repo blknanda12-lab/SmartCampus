@@ -1,0 +1,637 @@
+You are a senior full-stack engineer. Build a complete, production-ready, 
+hackathon-winning web application called "Smart Campus Resource Optimization 
+Platform" inside this Replit. Follow every instruction precisely.
+
+═══════════════════════════════════════════════════════════
+TECH STACK
+═══════════════════════════════════════════════════════════
+
+Frontend:
+  - React 18 + Vite
+  - Tailwind CSS + shadcn/ui components
+  - React Router v6 (client-side routing)
+  - Recharts (graphs/charts)
+  - React Big Calendar (booking calendar)
+  - Leaflet.js + React-Leaflet (campus map)
+  - Socket.io-client (real-time updates)
+  - QRCode.react (QR code generation)
+  - Framer Motion (animations)
+  - Axios (API calls)
+  - date-fns (date utilities)
+
+Backend:
+  - Node.js + Express.js
+  - Socket.io (WebSockets for real-time)
+  - JWT (jsonwebtoken) for authentication
+  - bcryptjs for password hashing
+  - MongoDB + Mongoose (use MongoDB Atlas or 
+    Replit's built-in DB, or mock with JSON files 
+    if DB unavailable)
+  - cors, dotenv, express-validator
+
+Project Type: Monorepo
+  /client  → React frontend (Vite)
+  /server  → Express backend
+
+═══════════════════════════════════════════════════════════
+FOLDER STRUCTURE (create exactly this)
+═══════════════════════════════════════════════════════════
+
+smart-campus/
+├── client/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── layout/
+│   │   │   │   ├── Sidebar.jsx
+│   │   │   │   ├── Navbar.jsx
+│   │   │   │   └── Layout.jsx
+│   │   │   ├── dashboard/
+│   │   │   │   ├── StatCard.jsx
+│   │   │   │   ├── UsageChart.jsx
+│   │   │   │   ├── RecentBookings.jsx
+│   │   │   │   └── AIInsightPanel.jsx
+│   │   │   ├── booking/
+│   │   │   │   ├── BookingCalendar.jsx
+│   │   │   │   ├── BookingModal.jsx
+│   │   │   │   ├── ResourceCard.jsx
+│   │   │   │   └── ConflictAlert.jsx
+│   │   │   ├── map/
+│   │   │   │   ├── CampusMap.jsx
+│   │   │   │   └── RoomMarker.jsx
+│   │   │   ├── notifications/
+│   │   │   │   └── NotificationPanel.jsx
+│   │   │   ├── chatbot/
+│   │   │   │   └── ChatbotWidget.jsx
+│   │   │   ├── qr/
+│   │   │   │   └── QRCheckIn.jsx
+│   │   │   └── iot/
+│   │   │       └── IoTSensorPanel.jsx
+│   │   ├── pages/
+│   │   │   ├── Login.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Resources.jsx
+│   │   │   ├── BookingPage.jsx
+│   │   │   ├── MapView.jsx
+│   │   │   ├── Analytics.jsx
+│   │   │   ├── AdminPanel.jsx
+│   │   │   └── NotFound.jsx
+│   │   ├── context/
+│   │   │   ├── AuthContext.jsx
+│   │   │   ├── SocketContext.jsx
+│   │   │   └── NotificationContext.jsx
+│   │   ├── hooks/
+│   │   │   ├── useAuth.js
+│   │   │   ├── useSocket.js
+│   │   │   └── useBookings.js
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   ├── authService.js
+│   │   │   ├── bookingService.js
+│   │   │   └── resourceService.js
+│   │   ├── utils/
+│   │   │   ├── aiPredictor.js
+│   │   │   ├── conflictDetector.js
+│   │   │   └── formatters.js
+│   │   ├── data/
+│   │   │   └── mockData.js
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
+│   ├── package.json
+│   ├── vite.config.js
+│   └── tailwind.config.js
+│
+├── server/
+│   ├── config/
+│   │   └── db.js
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── resourceController.js
+│   │   ├── bookingController.js
+│   │   ├── analyticsController.js
+│   │   └── iotController.js
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   └── roleMiddleware.js
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Resource.js
+│   │   ├── Booking.js
+│   │   └── Notification.js
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── resources.js
+│   │   ├── bookings.js
+│   │   ├── analytics.js
+│   │   └── iot.js
+│   ├── services/
+│   │   ├── aiService.js
+│   │   ├── notificationService.js
+│   │   └── iotSimulator.js
+│   ├── socket/
+│   │   └── socketHandler.js
+│   ├── data/
+│   │   └── seedData.js
+│   ├── index.js
+│   └── package.json
+│
+├── .env
+├── .env.example
+├── package.json          ← root (runs both client + server)
+└── README.md
+
+═══════════════════════════════════════════════════════════
+AUTHENTICATION SYSTEM
+═══════════════════════════════════════════════════════════
+
+Three roles: admin, faculty, student
+
+Seed these demo accounts on server start:
+
+  admin@campus.edu   / Admin@123    → role: admin
+  prof.smith@campus.edu / Faculty@123 → role: faculty
+  student1@campus.edu / Student@123 → role: student
+
+JWT tokens stored in localStorage.
+Protected routes based on role.
+AuthContext provides: user, login(), logout(), isAuthenticated.
+
+Login page UI:
+  - Modern card with campus logo/icon
+  - Email + Password fields
+  - Role badge shown after login
+  - Demo credential buttons (click to autofill)
+  - Animated gradient background
+
+═══════════════════════════════════════════════════════════
+DATABASE SCHEMA (MongoDB / Mongoose)
+═══════════════════════════════════════════════════════════
+
+User {
+  _id, name, email, passwordHash, role (admin|faculty|student),
+  department, avatar, createdAt
+}
+
+Resource {
+  _id,
+  name,            // "Lab A-101"
+  type,            // classroom | lab | study_room | parking | equipment
+  building,        // "Science Block"
+  floor,           // 1
+  capacity,        // 40
+  amenities,       // ["projector", "AC", "whiteboard"]
+  coordinates,     // { lat, lng } for map
+  status,          // available | occupied | reserved | maintenance
+  currentOccupancy,// real-time count (IoT simulated)
+  energyUsage,     // kWh (mock)
+  createdAt
+}
+
+Booking {
+  _id,
+  resourceId,      // ref: Resource
+  userId,          // ref: User
+  title,           // "CS301 Lecture"
+  startTime,       // Date
+  endTime,         // Date
+  date,            // "2024-11-15"
+  attendees,       // number
+  status,          // confirmed | pending | cancelled | completed
+  priority,        // faculty bookings get priority: 2, students: 1
+  checkInTime,     // when QR scanned
+  qrCode,          // unique string
+  notes,
+  createdAt
+}
+
+Notification {
+  _id, userId, message, type (success|warning|info|error),
+  read, relatedBookingId, createdAt
+}
+
+═══════════════════════════════════════════════════════════
+API ROUTES
+═══════════════════════════════════════════════════════════
+
+AUTH:
+  POST /api/auth/login       → { email, password } → JWT + user
+  POST /api/auth/register    → create user
+  GET  /api/auth/me          → current user (protected)
+
+RESOURCES:
+  GET  /api/resources                → all resources (with filters: type, status, date)
+  GET  /api/resources/:id            → single resource detail
+  GET  /api/resources/:id/availability → time slots for a date
+  PUT  /api/resources/:id/status     → admin: update status
+  POST /api/resources               → admin: create resource
+  DELETE /api/resources/:id          → admin: delete
+
+BOOKINGS:
+  GET  /api/bookings                 → user's bookings (admin sees all)
+  POST /api/bookings                 → create booking (conflict check)
+  PUT  /api/bookings/:id             → update booking
+  DELETE /api/bookings/:id           → cancel booking
+  POST /api/bookings/:id/checkin     → QR check-in endpoint
+  GET  /api/bookings/calendar        → all bookings for calendar view
+
+ANALYTICS (admin only):
+  GET  /api/analytics/utilization    → resource usage % by type
+  GET  /api/analytics/peakhours      → hourly usage heatmap data
+  GET  /api/analytics/trends         → 7-day / 30-day trends
+  GET  /api/analytics/underused      → resources with < 30% usage
+  GET  /api/analytics/energy         → energy usage data
+
+IOT:
+  GET  /api/iot/sensors              → all sensor readings
+  GET  /api/iot/sensors/:resourceId  → sensor for one room
+  POST /api/iot/simulate             → admin trigger occupancy change
+
+AI PREDICTIONS:
+  GET  /api/ai/predict?resourceId=&date= → predicted demand for a resource
+  GET  /api/ai/suggest?date=&capacity=&type= → best resource suggestion
+  GET  /api/ai/peaktimes             → predicted peak times this week
+
+═══════════════════════════════════════════════════════════
+CORE FEATURE IMPLEMENTATIONS
+═══════════════════════════════════════════════════════════
+
+── 1. ROLE-BASED DASHBOARD ────────────────────────────────
+
+Admin Dashboard:
+  Row 1 — Stat cards (animated numbers):
+    • Total Resources (count)
+    • Active Bookings Today
+    • Overall Utilization % (donut chart inside card)
+    • Energy Saved (kWh)
+  Row 2 — Charts:
+    • Bar chart: Utilization by resource type (7 days)
+    • Line chart: Booking trends (last 30 days)
+    • Pie chart: Bookings by role (faculty vs students)
+  Row 3 — Tables:
+    • Recent bookings with status badges
+    • AI Insights panel (top 3 suggestions)
+    • IoT live feed (room occupancy)
+
+Faculty Dashboard:
+  • My upcoming reservations (timeline view)
+  • Quick-book panel (favorite rooms)
+  • Department room availability
+  • Conflict alerts if any
+
+Student Dashboard:
+  • Available resources right now (filterable)
+  • My bookings (upcoming + history)
+  • AI-suggested study slots
+  • Popularity heatmap (when to book)
+
+── 2. SMART RESOURCE ALLOCATION ───────────────────────────
+
+Resource listing page:
+  • Filter bar: type | building | capacity | amenities | date+time
+  • Card grid with:
+    - Room name, building, floor
+    - Capacity badge
+    - Status indicator (colored dot, animated pulse if occupied)
+    - Amenities icons
+    - "Book Now" / "View Schedule" buttons
+    - AI match score badge (if coming from suggestion)
+
+Auto-suggest logic (in aiService.js):
+  Input: { requestedCapacity, preferredTime, type, userId }
+  Logic:
+    1. Filter available resources by type + capacity
+    2. Score each by: utilization history (lower = better),
+       capacity match, amenities
+    3. Apply time-based adjustment (avoid predicted peak hours)
+    4. Return top 3 with match % and reason string
+
+── 3. BOOKING SYSTEM ──────────────────────────────────────
+
+BookingCalendar.jsx:
+  Use react-big-calendar with:
+    - Month / Week / Day / Agenda views
+    - Color-coded events: green=confirmed, yellow=pending, 
+      red=cancelled, blue=faculty priority
+    - Click slot → BookingModal opens
+    - Drag-and-drop to reschedule (admin only)
+
+BookingModal.jsx:
+  Fields: Title, Resource (dropdown with availability check),
+          Date, Start Time, End Time, Attendees, Notes
+  Real-time conflict detection as user fills form:
+    - Red warning banner if conflict found
+    - Show conflicting booking details
+    - Faculty can override student bookings with warning
+  On submit:
+    - POST to /api/bookings
+    - Socket event emitted → all clients update
+    - Notification created
+    - QR code generated and displayed
+
+Conflict Detection (conflictDetector.js):
+  Check: same resource, overlapping time, same date
+  Priority: if faculty books over student → prompt admin approval
+  Return: { hasConflict, conflicts[], canOverride }
+
+── 4. AI PREDICTION MODULE ────────────────────────────────
+
+aiService.js (server-side mock AI):
+
+  predictDemand(resourceId, date):
+    - Use historical booking data + day-of-week pattern
+    - Return hourly demand scores [0-100] for 8am-10pm
+    - Peak detection: consecutive hours with score > 70
+
+  suggestSlots(type, capacity, date):
+    - Find low-demand windows
+    - Return top 3 time slots with demand score + reason
+
+  generateInsights():
+    - "Lab B-201 is underutilized on Fridays (12% usage)"
+    - "Parking Lot C peaks at 9am. Suggest arriving before 8:30am"
+    - "3 bookings conflict next Tuesday — resolve now"
+
+AIInsightPanel.jsx:
+  - Show 3-5 AI insights as animated cards
+  - Each with icon, message, action button
+  - "Resolve" / "Book Optimal Slot" / "View Details" CTAs
+
+Heatmap:
+  - 7x14 grid (7 days × 14 hours)
+  - Color scale: white → yellow → orange → red
+  - Hover tooltip: "Monday 2pm: 87% utilization"
+  - Built with SVG or a grid of colored divs
+
+── 5. CAMPUS MAP VIEW ─────────────────────────────────────
+
+CampusMap.jsx using React-Leaflet:
+  - Base: OpenStreetMap tiles (no API key needed)
+  - Center on a realistic university location
+    (use IIT Bombay or any large campus lat/lng)
+  - Custom markers for each resource:
+    GREEN circle: available
+    RED circle: occupied  
+    YELLOW circle: reserved
+    GREY circle: maintenance
+  - Marker click → popup with:
+    Room name, type, capacity, current status
+    "Book Now" button (routes to booking page)
+  - Legend panel (bottom-right)
+  - Filter toggle: show only classrooms / labs / parking
+  - Animated pulse on occupied rooms
+
+RoomMarker.jsx:
+  Custom Leaflet icon based on status color
+  Popup with mini booking form
+
+── 6. NOTIFICATIONS SYSTEM ────────────────────────────────
+
+Real-time via Socket.io:
+  Events emitted from server:
+    booking:confirmed   → user gets confirmation
+    booking:cancelled   → affected user alerted
+    booking:conflict    → admin notified
+    resource:statusChange → all relevant users
+    iot:occupancyAlert  → room over capacity
+
+NotificationPanel.jsx:
+  - Bell icon in navbar with unread count badge (red)
+  - Dropdown panel: list of notifications
+  - Color-coded by type (green/red/yellow/blue)
+  - "Mark all read" button
+  - Timestamp (e.g., "2 minutes ago")
+  - Click notification → navigate to related booking
+
+Toast notifications (bottom-right):
+  Use a toast library or build custom
+  Auto-dismiss after 4 seconds
+  Stack multiple toasts
+
+── 7. ADMIN ANALYTICS PANEL ───────────────────────────────
+
+Full analytics page (admin only):
+
+  Section 1 — Overview KPIs:
+    Utilization Rate % | Total Bookings | Cancelled % | Avg Duration
+
+  Section 2 — Charts (use Recharts):
+    a) Resource Utilization by Type
+       → Grouped bar chart (Mon-Sun × resource type)
+    b) Hourly Usage Heatmap
+       → 7×14 grid colored by intensity
+    c) Booking Trends (30-day line chart)
+    d) Top 5 Most Booked Resources (horizontal bar)
+    e) Energy Usage per Building (area chart)
+
+  Section 3 — Underused Resources Table:
+    Resource | Type | Avg Utilization | Last Booked | Suggestion
+    "Consider converting Lab C-305 to a study room"
+
+  Section 4 — Peak Hour Insights:
+    "Tuesday 10am-12pm is the busiest window (94% utilization)"
+    "Saturday has 12% utilization — consider reduced hours"
+
+── 8. QR CODE CHECK-IN ────────────────────────────────────
+
+QRCheckIn.jsx:
+  - Each confirmed booking has a unique QR code
+  - Display QR code in booking detail page
+    (use qrcode.react library)
+  - QR encodes: { bookingId, userId, resourceId, timestamp }
+  - Admin/kiosk scan page: decode QR → POST /api/bookings/:id/checkin
+  - On check-in: booking status → "completed", 
+    IoT sensor updates occupancy +1
+
+── 9. IOT SIMULATION ──────────────────────────────────────
+
+iotSimulator.js (server):
+  - Every 15 seconds, randomly update 2-3 resource occupancies
+  - Simulate: motion sensor, door sensor, camera count
+  - Emit socket event: iot:update { resourceId, occupancy, timestamp }
+
+IoTSensorPanel.jsx:
+  - Live feed table: Room | Capacity | Current Occupancy | % | Status
+  - Animated progress bar for occupancy %
+  - "Alert" badge if occupancy > 90% of capacity
+  - Last updated timestamp with pulsing dot
+
+── 10. ENERGY OPTIMIZATION ────────────────────────────────
+
+Energy panel (in admin analytics):
+  - Mock energy data: each room has kWh/hour
+  - Calculate wasted energy (occupied=0 but lights/AC on)
+  - Show: "Room B-102 has been empty for 3 hours. 
+           Estimated waste: 4.5 kWh. Auto-shutoff suggested."
+  - "Optimize Now" button → marks room for HVAC reduction
+
+── 11. CHATBOT ASSISTANT ──────────────────────────────────
+
+ChatbotWidget.jsx:
+  - Floating chat button (bottom-right, above notifications)
+  - Chat window: message bubbles, typing indicator
+  - Rule-based responses (no external API needed):
+
+  Recognize intents:
+    "book a room" → "What type of room? For how many people?"
+    "available labs" → Show available labs right now
+    "cancel booking" → "Which booking would you like to cancel?"
+    "peak hours" → Show busy times
+    "suggest a slot" → Run AI suggest, return top recommendation
+    "help" → Show command list
+
+  Typing animation (3 dots) before each bot response
+  Bot responses feel natural and context-aware
+  Quick-reply buttons for common actions
+
+═══════════════════════════════════════════════════════════
+REAL-TIME WEBSOCKETS
+═══════════════════════════════════════════════════════════
+
+socketHandler.js:
+  On connection: join user's personal room (userId)
+  Events handled:
+    booking:new     → broadcast to all, notify resource viewers
+    booking:update  → notify booking owner + admin
+    iot:update      → broadcast new sensor readings
+    notification:new → send to specific user room
+
+SocketContext.jsx:
+  - Wraps app with socket.io-client connection
+  - Provides: socket, connected status
+  - Auto-reconnect on disconnect
+
+═══════════════════════════════════════════════════════════
+UI/UX DESIGN REQUIREMENTS
+═══════════════════════════════════════════════════════════
+
+Color System (CSS variables):
+  --primary: #0F172A        (deep navy)
+  --secondary: #6366F1      (indigo)
+  --accent: #10B981         (emerald)
+  --warning: #F59E0B        (amber)
+  --danger: #EF4444         (red)
+  --surface: #1E293B        (dark surface)
+  --text: #F1F5F9           (light text)
+  → Dark theme by default with light mode toggle
+
+Typography:
+  Display: 'Syne' or 'Clash Display' (Google Fonts)
+  Body: 'DM Sans' or 'Plus Jakarta Sans'
+  Mono: 'JetBrains Mono' (for data/codes)
+
+Animations (Framer Motion):
+  - Page transitions: fade + slide up
+  - Stat cards: count-up animation on load
+  - Sidebar: smooth collapse/expand
+  - Cards: hover lift effect (translateY -4px, shadow)
+  - Modals: scale in from center
+  - Notifications: slide in from right
+
+Layout:
+  - Fixed left sidebar (240px wide, collapsible to 64px)
+  - Top navbar with: breadcrumb, notifications, user avatar, theme toggle
+  - Main content area with max-width container
+  - Responsive: sidebar becomes bottom tab bar on mobile
+
+Components style:
+  - Cards: rounded-2xl, subtle border, backdrop blur
+  - Badges: pill shape, color-coded
+  - Tables: alternating row colors, sticky header
+  - Inputs: floating labels, focus ring in accent color
+  - Buttons: primary (filled), secondary (outlined), ghost
+  - Status dots: animated pulse for live/active states
+
+═══════════════════════════════════════════════════════════
+SEED DATA (create in seedData.js and run on start)
+═══════════════════════════════════════════════════════════
+
+Resources (create 20):
+  5 Classrooms (cap: 40-120), 4 Labs (cap: 20-30),
+  4 Study Rooms (cap: 4-10), 4 Parking Lots (cap: 50-200),
+  3 Equipment sets (projectors, microscopes, cameras)
+  
+  Distribute across 3 buildings:
+    Science Block (lat: 19.133, lng: 72.913)
+    Engineering Block (lat: 19.134, lng: 72.914)
+    Library Complex (lat: 19.132, lng: 72.912)
+
+Bookings (create 50 historical + 10 upcoming):
+  Mix of faculty and student bookings
+  Some completed, some upcoming, 2-3 conflicts
+  Cover last 30 days for analytics data
+
+IoT Readings: random occupancy for all resources
+
+═══════════════════════════════════════════════════════════
+ENV CONFIGURATION (.env)
+═══════════════════════════════════════════════════════════
+
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/smart_campus
+  (or use mock JSON storage if MongoDB unavailable)
+JWT_SECRET=smart_campus_jwt_secret_2024
+CLIENT_URL=http://localhost:5173
+NODE_ENV=development
+
+═══════════════════════════════════════════════════════════
+ROOT package.json (monorepo runner)
+═══════════════════════════════════════════════════════════
+
+{
+  "name": "smart-campus",
+  "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "seed": "cd server && node data/seedData.js"
+  }
+}
+
+═══════════════════════════════════════════════════════════
+IMPORTANT INSTRUCTIONS FOR REPLIT
+═══════════════════════════════════════════════════════════
+
+1. If MongoDB is not available, use a JSON file-based 
+   mock database (lowdb or simple fs read/write)
+   
+2. Make sure the Vite dev server proxies /api requests
+   to the Express server:
+   vite.config.js:
+     server: { proxy: { '/api': 'http://localhost:5000' } }
+
+3. Configure .replit to run: npm run dev
+
+4. The app must work end-to-end in Replit's environment
+
+5. Generate realistic mock data — numbers, names, 
+   timestamps should all look real, not "test123"
+
+6. Every page must be fully functional — no placeholder 
+   "coming soon" sections. If data is mock, make it 
+   look real and populated.
+
+7. The app must be immediately impressive on first load —
+   dashboard should be full of data, charts rendered,
+   map showing markers, notifications visible.
+
+8. Make the Login page stunning — it's the first 
+   impression. Three demo-credential buttons for each role.
+
+9. Write JSDoc comments on all major functions.
+
+10. Create a beautiful README.md with:
+    - Project overview with feature list
+    - Screenshots section (describe what they'd show)
+    - Setup instructions
+    - API documentation table
+    - Tech stack badges
+
+START BUILDING NOW. Write all files completely.
+Do not truncate any file. Every component must be 
+fully implemented with real logic, not TODOs.
+Begin with: package.json files → server/index.js → 
+models → routes → client/src/main.jsx → App.jsx → 
+pages → components → seed data → README.
