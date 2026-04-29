@@ -37,16 +37,22 @@ export function BookingModal({ isOpen, onClose, resourceId, resourceName, defaul
   const [conflictError, setConflictError] = useState<any>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Sync state with props when they change
+  // Every time the modal opens, sync time/date from props
   useEffect(() => {
-    if (defaultHour) {
-      setStartTime(`${defaultHour.toString().padStart(2, '0')}:00`);
-      setEndTime(`${(defaultHour + 1).toString().padStart(2, '0')}:00`);
+    if (!isOpen) return;
+    if (typeof defaultHour === "number") {
+      const start = defaultHour.toString().padStart(2, '0');
+      const end = (defaultHour + 1).toString().padStart(2, '0');
+      setStartTime(`${start}:00`);
+      setEndTime(`${end}:00`);
     }
     if (defaultDate) {
       setDate(format(defaultDate, "yyyy-MM-dd"));
     }
-  }, [defaultHour, defaultDate, isOpen]);
+    // Clear errors on each open
+    setConflictError(null);
+    setValidationError(null);
+  }, [isOpen, defaultHour, defaultDate]);
 
   const handleSubmit = (override = false) => {
     if (!resourceId || !user?.id) return;
